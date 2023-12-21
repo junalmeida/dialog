@@ -15,7 +15,7 @@ on:
 jobs:
   get-version:
     name: Get Version
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
@@ -33,7 +33,7 @@ jobs:
   chocolatey-bump:
     needs: get-version
     name: Push Chocolately
-    runs-on: windows-2019
+    runs-on: windows-latest
     defaults:
       run:
         shell: powershell
