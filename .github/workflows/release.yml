@@ -1,0 +1,66 @@
+name: Upload Chocolatey Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'SemVer format release tag, i.e. 0.24.5'
+        required: true
+      force:
+        description: 'force push package'
+        required: false
+        default: 'false'
+  repository_dispatch:
+    types: [ chocolatey ]
+
+jobs:
+  get-version:
+    name: Get Version
+    runs-on: ubuntu-18.04
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Get version
+        id: get_version
+        run: |
+          version=""
+          if [ "${{ github.event_name }}" == "repository_dispatch" ]
+          then
+            version="${{ github.event.client_payload.version }}"
+          else
+            version="${{ github.event.inputs.version }}"
+          fi
+          echo "::set-output name=version::$version"
+  chocolatey-bump:
+    needs: get-version
+    name: Push Chocolately
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install AU
+        run: cinst au
+      - name: Build Package
+        run: choco pack --output-directory=./dist
+        env:
+          au_Push: 'false'
+          au_Force: ${{ github.event.inputs.force }}
+          VERSION: ${{ needs.get-version.outputs.version }}
+      - name: Test Package Installer
+        run: Test-Package $Install
+      - name: Version
+        run: |
+          refreshenv
+          dialog -v
+      - uses: EndBug/add-and-commit@v7
+        with:
+          message: "[ga-bump-dolt-chocolatey] Pushing to Chocolatey ${{ needs.get-version.outputs.version }}"
+          add: "."
+          cwd: "."
+      - name: Push Package to Chocolatey
+        run: Push-Package
+        working-directory: ./dist
+        env:
+          api_key: ${{ secrets.CHOCO_API_KEY }}
+          au_Force: ${{ github.event.inputs.force }}

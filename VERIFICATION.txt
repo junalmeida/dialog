@@ -1,0 +1,12 @@
+﻿VERIFICATION
+Verification is intended to assist the Chocolatey moderators and community
+in verifying that this package's contents are trustworthy.
+
+1.  Download and extract the zip:
+
+    https://andrear.altervista.org/contents/pc/dialog/dialog-exe-mingw.zip
+
+2.  You can use the following method to obtain the checksum: 
+    - Use powershell function 'Get-FileHash dialog.exe'
+
+    checksum: 1308FF04C7BE18DF0C1A4B9EC5EFBEF993F1A9CA72F29D71EF06B053AC129D8D
