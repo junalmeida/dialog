@@ -29,7 +29,7 @@ jobs:
           else
             version="${{ github.event.inputs.version }}"
           fi
-          echo "::set-output name=version::$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
   chocolatey-bump:
     needs: get-version
     name: Push Chocolately
@@ -38,9 +38,9 @@ jobs:
       run:
         shell: powershell
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install AU
-        run: cinst au
+        run: choco install au
       - name: Build Package
         run: choco pack --output-directory=./dist
         env:
